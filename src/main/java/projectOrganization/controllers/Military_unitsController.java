@@ -1,7 +1,5 @@
 package projectOrganization.controllers;
 
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -9,9 +7,12 @@ import org.springframework.web.bind.annotation.*;
 import projectOrganization.dto.*;
 import projectOrganization.entity.Armaments;
 import projectOrganization.entity.Military_units;
+import projectOrganization.models.Military_unitsModel;
 import projectOrganization.repository.ArmamentsRepository;
 import projectOrganization.repository.Military_unitsRepository;
+import projectOrganization.services.Military_unitsService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -21,81 +22,56 @@ public class Military_unitsController {
     private Military_unitsRepository military_unitsRepository;
     @Autowired
     private ArmamentsRepository armamentsRepository;
-
-    private final ModelMapper modelMapper = new ModelMapper();
+    @Autowired
+    private Military_unitsService military_unitsService;
 
     @GetMapping("/all")
-    public ResponseEntity<List<Military_unitsOutDTO>> getAllMilitaryUnits() {
+    public ResponseEntity<?>  getAllMilitaryUnits() {
         try {
-            List<Military_units> result = military_unitsRepository.findAll();
-            List<Military_unitsOutDTO> military_unitsOutDTO = modelMapper.map(result, new TypeToken<List<Military_unitsOutDTO>>() {
-            }.getType());
-            return ResponseEntity.ok(military_unitsOutDTO);
+            List<Military_unitsModel> military_unitsModelList = new ArrayList<>();
+            military_unitsService.getAllMilitaryUnits().forEach(military_unit -> military_unitsModelList.add(Military_unitsModel.toModel(military_unit)));
+            return ResponseEntity.ok(military_unitsModelList);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Military_unitsOutDTO> getMilitaryUnits(@PathVariable Integer id) {
+    @GetMapping("/{id_unit}")
+    public ResponseEntity<?>  getMilitaryUnits(@PathVariable Integer id_unit) {
         try {
-            if (military_unitsRepository.existsById(id)) {
-                Military_units result = military_unitsRepository.findById(id).get();
-                Military_unitsOutDTO military_unitsOutDTO = modelMapper.map(result, Military_unitsOutDTO.class);
-                return ResponseEntity.ok(military_unitsOutDTO);
-            }
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.ok(military_unitsService.getMilitaryUnits(id_unit));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteMilitaryUnits(@PathVariable Integer id) {
+    @DeleteMapping("/{id_unit}")
+    public ResponseEntity<?>  deleteMilitaryUnits(@PathVariable Integer id_unit) {
         try {
-            if (!military_unitsRepository.existsById(id)) {
-                return ResponseEntity.badRequest().body("Военной части не существует");
-            }
-            military_unitsRepository.deleteById(id);
-            return ResponseEntity.ok("Успех");
+            military_unitsService.deleteMilitaryUnits(id_unit);
+            return ResponseEntity.ok("Военная чать удалена");
         } catch (Exception e) {
-        return ResponseEntity.badRequest().body(" ");
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PostMapping("/add")
-    public ResponseEntity<String> addMilitaryUnits(@RequestBody Military_unitsDTO military_unitsDTO ) {
+    public ResponseEntity<?>  addMilitaryUnits(@RequestBody Military_unitsDTO request ) {
     try {
-        military_unitsDTO.setId_unit(null);
-
-        Military_units military_unit = new Military_units(null, military_unitsDTO.getName_unit(),
-                military_unitsDTO.getId_association(),
-                military_unitsDTO.getId_dislocation());
-
-        military_unitsRepository.save(military_unit);
-
-        return ResponseEntity.ok("Успех");
+        military_unitsService.addMilitaryUnits(request);
+        return ResponseEntity.ok("Военная часть добавлена");
     } catch (Exception e) {
-        return ResponseEntity.badRequest().body("Ошибка");
+        return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PostMapping("/edit")
-    public ResponseEntity<String> editMilitaryUnit(@RequestBody Military_unitsDTO military_unitsDTO) {
+    public ResponseEntity<?>  editMilitaryUnit(@RequestBody Military_unitsDTO request) {
     try {
-        if(!military_unitsRepository.existsById(military_unitsDTO.getId_unit())) {
-            return ResponseEntity.badRequest().body("Военной части не существует");
-        }
-
-        Military_units military_unit = new Military_units(military_unitsDTO.getId_unit(),
-                military_unitsDTO.getName_unit(),
-                military_unitsDTO.getId_association(),
-                military_unitsDTO.getId_dislocation());
-        military_unitsRepository.save(military_unit);
-
-        return ResponseEntity.ok("Успех");
+        military_unitsService.editMilitaryUnit(request);
+        return ResponseEntity.ok("Военная часть изменена");
     } catch (Exception e) {
-        return ResponseEntity.badRequest().body("Ошибка");
+        return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -103,7 +79,7 @@ public class Military_unitsController {
     public ResponseEntity<String> addArmamentsToUnit(@PathVariable Integer id_unit, @PathVariable Integer id_armament) {
         try {
             if(!armamentsRepository.existsById(id_armament)) {
-                return ResponseEntity.badRequest().body("Вооружения не существует");
+                return ResponseEntity.badRequest().body("Вооружение не существует");
             }
             if(!military_unitsRepository.existsById(id_unit)) {
                 return ResponseEntity.badRequest().body("Военной части не существует");
@@ -118,7 +94,7 @@ public class Military_unitsController {
 
             return ResponseEntity.ok("Успех");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("ошибка");
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

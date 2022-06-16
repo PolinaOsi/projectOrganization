@@ -1,98 +1,69 @@
 package projectOrganization.controllers;
 
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import projectOrganization.dto.*;
-import projectOrganization.entity.Employees;
-import projectOrganization.repository.EmployeesRepository;
+import projectOrganization.models.EmployeesModel;
+import projectOrganization.services.EmployeesService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
 @RequestMapping(path = "/employees")
 public class EmployeesController {
         @Autowired
-        private EmployeesRepository employeesRepository;
-
-        private final ModelMapper modelMapper = new ModelMapper();
+        private EmployeesService employeesService;
 
         @GetMapping("/all")
-        public ResponseEntity<List<EmployeesOutDTO>> getAllEmployees() {
+        public ResponseEntity<?>  getAllEmployees() {
             try {
-                List<Employees> result = employeesRepository.findAll();
-                List<EmployeesOutDTO> employeesOutDTO = modelMapper.map(result, new TypeToken<List<EmployeesOutDTO>>() {
-                }.getType());
-                return ResponseEntity.ok(employeesOutDTO);
+                List<EmployeesModel> employeesModelList = new ArrayList<>();
+                employeesService.getAllEmployees().forEach(employee -> employeesModelList.add(EmployeesModel.toModel(employee)));
+                return ResponseEntity.ok(employeesModelList);
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
-        @GetMapping("/{id}")
-        public ResponseEntity<EmployeesOutDTO> getEmployees (@PathVariable Integer id) {
+        @GetMapping("/{id_employee}")
+        public ResponseEntity<?>  getEmployees (@PathVariable Integer id_employee) {
             try {
-                if (employeesRepository.existsById(id)) {
-                    Employees result = employeesRepository.findById(id).get();
-                    EmployeesOutDTO employeesOutDTO = modelMapper.map(result, EmployeesOutDTO.class);
-                    return ResponseEntity.ok(employeesOutDTO);
-                }
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.ok(employeesService.getEmployees(id_employee));
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
-        @DeleteMapping("/{id}")
-        public ResponseEntity<String> deleteEmployees(@PathVariable Integer id) {
+        @DeleteMapping("/{id_employee}")
+        public ResponseEntity<?>  deleteEmployees(@PathVariable Integer id_employee) {
             try {
-                if (!employeesRepository.existsById(id)) {
-                    return ResponseEntity.badRequest().body("Сотрудника не существует");
-                }
-                employeesRepository.deleteById(id);
-                return ResponseEntity.ok("Успех");
+                employeesService.deleteEmployees(id_employee);
+                return ResponseEntity.ok("Сотрудник удален");
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(" ");
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
         @PostMapping("/add")
-        public ResponseEntity<String> addEmployees(@RequestBody EmployeesDTO employeesDTO ) {
+        public ResponseEntity<?>  addEmployees(@RequestBody EmployeesDTO request ) {
             try {
-                employeesDTO.setId_employee(null);
-
-                Employees employee = new Employees(null, employeesDTO.getName_employee(), employeesDTO.getSurname_employee(),
-                        employeesDTO.getPatronymic_employee(), employeesDTO.getDate_birth(), employeesDTO.getId_association(),
-                        employeesDTO.getId_rank(), employeesDTO.getId_army(), employeesDTO.getId_unit(), employeesDTO.getId_department(),
-                        employeesDTO.getCharacteristic());
-
-                employeesRepository.save(employee);
-
-                return ResponseEntity.ok("Успех");
+                employeesService.addEmployees(request);
+                return ResponseEntity.ok("Сотрудник добавлен");
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body("Ошибка");
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
         @PostMapping("/edit")
-        public ResponseEntity<String> editEmployees(@RequestBody EmployeesDTO employeesDTO) {
+        public ResponseEntity<?>  editEmployees(@RequestBody EmployeesDTO request) {
             try {
-                if(!employeesRepository.existsById(employeesDTO.getId_employee())) {
-                    return ResponseEntity.badRequest().body("Сотрудника не существует");
-                }
-
-                Employees employee = new Employees(employeesDTO.getId_employee(), employeesDTO.getName_employee(), employeesDTO.getSurname_employee(),
-                        employeesDTO.getPatronymic_employee(), employeesDTO.getDate_birth(), employeesDTO.getId_association(),
-                        employeesDTO.getId_rank(), employeesDTO.getId_army(), employeesDTO.getId_unit(), employeesDTO.getId_department(),
-                        employeesDTO.getCharacteristic());
-                employeesRepository.save(employee);
-
-                return ResponseEntity.ok("Успех");
+                employeesService.editEmployees(request);
+                return ResponseEntity.ok("Сотрудник изменен");
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body("Ошибка");
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 

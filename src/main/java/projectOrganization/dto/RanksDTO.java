@@ -9,4 +9,3 @@ public class RanksDTO {
     private String category;
 }
 
-

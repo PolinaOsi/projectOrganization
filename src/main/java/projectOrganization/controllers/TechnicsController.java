@@ -2,92 +2,70 @@
 package projectOrganization.controllers;
 
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import projectOrganization.dto.*;
-import projectOrganization.entity.Technics;
-import projectOrganization.repository.TechnicsRepository;
+import projectOrganization.models.TechnicsModel;
+import projectOrganization.services.TechnicsService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
 @RequestMapping(path = "/technics")
 public class TechnicsController {
         @Autowired
-        private TechnicsRepository technicsRepository;
-
-        private final ModelMapper modelMapper = new ModelMapper();
+        private TechnicsService technicsService;
 
         @GetMapping("/all")
-        public ResponseEntity<List<TechnicsOutDTO>> getAllTechnics() {
+        public ResponseEntity<?> getAllTechnics() {
             try {
-                List<Technics> result = technicsRepository.findAll();
-                List<TechnicsOutDTO> technicsOutDTO = modelMapper.map(result, new TypeToken<List<TechnicsOutDTO>>() {
-                }.getType());
-                return ResponseEntity.ok(technicsOutDTO);
+                List<TechnicsModel> technicsModelList = new ArrayList<>();
+                technicsService.getAllTechnics().forEach(technic -> technicsModelList.add(TechnicsModel.toModel(technic)));
+                return ResponseEntity.ok(technicsModelList);
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
-        @GetMapping("/{id}")
-        public ResponseEntity<TechnicsOutDTO> getTechnics(@PathVariable Integer id) {
+        @GetMapping("/{id_technic}")
+        public ResponseEntity<?> getTechnics(@PathVariable Integer id_technic) {
             try {
-                if (technicsRepository.existsById(id)) {
-                    Technics result = technicsRepository.findById(id).get();
-                    TechnicsOutDTO technicsOutDTO = modelMapper.map(result, TechnicsOutDTO.class);
-                    return ResponseEntity.ok(technicsOutDTO);
-                }
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.ok(technicsService.getTechnics(id_technic));
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
-        @DeleteMapping("/{id}")
-        public ResponseEntity<String> deleteTechnics(@PathVariable Integer id) {
+        @DeleteMapping("/{id_technic}")
+        public ResponseEntity<?> deleteTechnics(@PathVariable Integer id_technic) {
             try {
-                if (!technicsRepository.existsById(id)) {
-                    return ResponseEntity.badRequest().body("Техники не существует");
-                }
-                technicsRepository.deleteById(id);
-                return ResponseEntity.ok("Успех");
+                technicsService.deleteTechnics(id_technic);
+                return ResponseEntity.ok("Техника удалена");
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(" ");
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
         @PostMapping("/add")
-        public ResponseEntity<String> addTechnics(@RequestBody TechnicsDTO technicsDTO ) {
+        public ResponseEntity<?> addTechnics(@RequestBody TechnicsDTO request ) {
             try {
-                technicsDTO.setId_technic(null);
-
-                Technics technics = new Technics(null, technicsDTO.getName_technic(), technicsDTO.getCount_technic(), technicsDTO.getId_unit());
-
-                technicsRepository.save(technics);
-
-                return ResponseEntity.ok("Успех");
+                technicsService.addTechnics(request);
+                return ResponseEntity.ok("Техника добавлена");
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body("Ошибка");
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
         @PostMapping("/edit")
-        public ResponseEntity<String> editTechnics(@RequestBody TechnicsDTO technicsDTO) {
+        public ResponseEntity<?> editTechnics(@RequestBody TechnicsDTO request) {
             try {
-                if(!technicsRepository.existsById(technicsDTO.getId_technic())) {
-                    return ResponseEntity.badRequest().body("Техники не существует");
-                }
-
-                Technics technics = new Technics(technicsDTO.getId_technic(), technicsDTO.getName_technic(), technicsDTO.getCount_technic(), technicsDTO.getId_unit());
-                technicsRepository.save(technics);
-
-                return ResponseEntity.ok("Успех");
+                technicsService.editTechnics(request);
+                return ResponseEntity.ok("Техника изменена");
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body("Ошибка");
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 }

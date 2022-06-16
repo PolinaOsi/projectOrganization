@@ -1,17 +1,14 @@
 package projectOrganization.controllers;
 
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import projectOrganization.dto.*;
-import projectOrganization.entity.Companies;
-import projectOrganization.entity.Departments;
-import projectOrganization.repository.CompaniesRepository;
-import projectOrganization.repository.DepartmentsRepository;
+import projectOrganization.models.DepartmentsModel;
+import projectOrganization.services.DepartmentsService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -19,78 +16,55 @@ import java.util.List;
 public class DepartmentsController {
 
         @Autowired
-        private DepartmentsRepository departmentsRepository;
-
-        private final ModelMapper modelMapper = new ModelMapper();
+        private DepartmentsService departmentsService;
 
         @GetMapping("/all")
-        public ResponseEntity<List<DepartmentsOutDTO>> getAllDepartments() {
+        public ResponseEntity<?> getAllDepartments() {
             try {
-                List<Departments> result = departmentsRepository.findAll();
-                List<DepartmentsOutDTO> departmentsOutDTO = modelMapper.map(result, new TypeToken<List<DepartmentsOutDTO>>() {
-                }.getType());
-                return ResponseEntity.ok(departmentsOutDTO);
+                List<DepartmentsModel> departmentsModelList = new ArrayList<>();
+                departmentsService.getAllDepartments().forEach(department -> departmentsModelList.add(DepartmentsModel.toModel(department)));
+                return ResponseEntity.ok(departmentsModelList);
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
-        @GetMapping("/{id}")
-        public ResponseEntity<DepartmentsOutDTO> getDepartments(@PathVariable Integer id) {
+        @GetMapping("/{id_department}")
+        public ResponseEntity<?> getDepartments(@PathVariable Integer id_department) {
             try {
-                if (departmentsRepository.existsById(id)) {
-                    Departments result = departmentsRepository.findById(id).get();
-                    DepartmentsOutDTO departmentsOutDTO = modelMapper.map(result, DepartmentsOutDTO.class);
-                    return ResponseEntity.ok(departmentsOutDTO);
-                }
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.ok(departmentsService.getDepartments(id_department));
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
-        @DeleteMapping("/{id}")
-        public ResponseEntity<String> deleteDepartments(@PathVariable Integer id) {
+        @DeleteMapping("/{id_department}")
+        public ResponseEntity<?> deleteDepartments(@PathVariable Integer id_department) {
             try {
-                if (!departmentsRepository.existsById(id)) {
-                    return ResponseEntity.badRequest().body("Отделения не существует");
-                }
-                departmentsRepository.deleteById(id);
-                return ResponseEntity.ok("Успех");
+                departmentsService.deleteDepartments(id_department);
+                return ResponseEntity.ok("Отдел удален");
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(" ");
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
         @PostMapping("/add")
-        public ResponseEntity<String> addDepartments(@RequestBody DepartmentsDTO departmentsDTO ) {
+        public ResponseEntity<?>addDepartments(@RequestBody DepartmentsDTO request ) {
             try {
-                departmentsDTO.setId_department(null);
-
-                Departments department = new Departments(null, departmentsDTO.getId_platoon());
-
-                departmentsRepository.save(department);
-
-                return ResponseEntity.ok("Успех");
+                departmentsService.addDepartments(request);
+                return ResponseEntity.ok("Отдел добавлен");
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body("Ошибка");
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
         @PostMapping("/edit")
-        public ResponseEntity<String> editDepartments(@RequestBody DepartmentsDTO departmentsDTO) {
+        public ResponseEntity<?> editDepartments(@RequestBody DepartmentsDTO request) {
             try {
-                if(!departmentsRepository.existsById(departmentsDTO.getId_department())) {
-                    return ResponseEntity.badRequest().body("Отделения не существует");
-                }
-
-                Departments department = new Departments(departmentsDTO.getId_department(),
-                        departmentsDTO.getId_platoon());
-                departmentsRepository.save(department);
-
-                return ResponseEntity.ok("Успех");
+                departmentsService.editDepartments(request);
+                return ResponseEntity.ok("Отдел изменен");
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body("Ошибка");
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 }

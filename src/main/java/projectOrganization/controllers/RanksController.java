@@ -8,85 +8,69 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import projectOrganization.dto.*;
 import projectOrganization.entity.Ranks;
+import projectOrganization.models.Military_unitsModel;
+import projectOrganization.models.RanksModel;
 import projectOrganization.repository.RanksRepository;
+import projectOrganization.services.RanksService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
 @RequestMapping(path = "/ranks")
 public class RanksController {
         @Autowired
-        private RanksRepository ranksRepository;
+        private RanksService ranksService;
 
         private final ModelMapper modelMapper = new ModelMapper();
 
         @GetMapping("/all")
-        public ResponseEntity<List<RanksOutDTO>> getAllRanks() {
+        public ResponseEntity<?>  getAllRanks() {
             try {
-                List<Ranks> result = ranksRepository.findAll();
-                List<RanksOutDTO> ranksOutDTO = modelMapper.map(result, new TypeToken<List<RanksOutDTO>>() {
-                }.getType());
-                return ResponseEntity.ok(ranksOutDTO);
+                List<RanksModel> ranksModelList = new ArrayList<>();
+                ranksService.getAllRanks().forEach(rank -> ranksModelList.add(RanksModel.toModel(rank)));
+                return ResponseEntity.ok(ranksModelList);
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
-        @GetMapping("/{id}")
-        public ResponseEntity<RanksOutDTO> getRanks(@PathVariable Integer id) {
+        @GetMapping("/{id_rank}")
+        public ResponseEntity<?>  getRanks(@PathVariable Integer id_rank) {
             try {
-                if (ranksRepository.existsById(id)) {
-                    Ranks result = ranksRepository.findById(id).get();
-                    RanksOutDTO ranksOutDTO = modelMapper.map(result, RanksOutDTO.class);
-                    return ResponseEntity.ok(ranksOutDTO);
-                }
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.ok(ranksService.getRanks(id_rank));
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
-        @DeleteMapping("/{id}")
-        public ResponseEntity<String> deleteRanks(@PathVariable Integer id) {
+        @DeleteMapping("/{id_rank}")
+        public ResponseEntity<?>  deleteRanks(@PathVariable Integer id_rank) {
             try {
-                if (!ranksRepository.existsById(id)) {
-                    return ResponseEntity.badRequest().body("Звания не существует");
-                }
-                ranksRepository.deleteById(id);
-                return ResponseEntity.ok("Успех");
+                ranksService.deleteRanks(id_rank);
+                return ResponseEntity.ok("Звание удалено");
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(" ");
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
         @PostMapping("/add")
-        public ResponseEntity<String> addRanks(@RequestBody RanksDTO ranksDTO ) {
+        public ResponseEntity<?>  addRanks(@RequestBody RanksDTO request ) {
             try {
-                ranksDTO.setId_rank(null);
-
-                Ranks rank = new Ranks(null, ranksDTO.getName_rank(), ranksDTO.getCategory());
-
-                ranksRepository.save(rank);
-
-                return ResponseEntity.ok("Успех");
+                ranksService.addRanks(request);
+                return ResponseEntity.ok("Звание добавлено");
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body("Ошибка");
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
         @PostMapping("/edit")
-        public ResponseEntity<String> editRanks(@RequestBody RanksDTO ranksDTO) {
+        public ResponseEntity<?>  editRanks(@RequestBody RanksDTO request) {
             try {
-                if(!ranksRepository.existsById(ranksDTO.getId_rank())) {
-                    return ResponseEntity.badRequest().body("Звания не существует");
-                }
-
-                Ranks rank = new Ranks(ranksDTO.getId_rank(), ranksDTO.getName_rank(), ranksDTO.getCategory());
-                ranksRepository.save(rank);
-
-                return ResponseEntity.ok("Успех");
+                ranksService.editRanks(request);
+                return ResponseEntity.ok("Звание изменено");
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body("Ошибка");
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 }

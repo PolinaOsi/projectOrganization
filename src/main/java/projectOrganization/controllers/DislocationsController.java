@@ -1,92 +1,69 @@
 package projectOrganization.controllers;
 
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import projectOrganization.dto.*;
-import projectOrganization.entity.Dislocations;
-import projectOrganization.repository.DislocationsRepository;
+import projectOrganization.models.DislocationsModel;
+import projectOrganization.services.DislocationsService;
 
+import java.util.ArrayList;
 import java.util.List;
 
     @Controller
     @RequestMapping(path = "/dislocations")
     public class DislocationsController {
         @Autowired
-        private DislocationsRepository dislocationsRepository;
-
-        private final ModelMapper modelMapper = new ModelMapper();
+        private DislocationsService dislocationsService;
 
         @GetMapping("/all")
-        public ResponseEntity<List<DislocationsOutDTO>> getAllDislocations() {
+        public ResponseEntity<?> getAllDislocations() {
             try {
-                List<Dislocations> result = dislocationsRepository.findAll();
-                List<DislocationsOutDTO> dislocationsOutDTO = modelMapper.map(result, new TypeToken<List<DislocationsOutDTO>>() {
-                }.getType());
-                return ResponseEntity.ok(dislocationsOutDTO);
+                List<DislocationsModel> dislocationsModelList = new ArrayList<>();
+                dislocationsService.getAllDislocations().forEach(dislocation -> dislocationsModelList.add(DislocationsModel.toModel(dislocation)));
+                return ResponseEntity.ok(dislocationsModelList);
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
-        @GetMapping("/{id}")
-        public ResponseEntity<DislocationsOutDTO> getDislocations (@PathVariable Integer id) {
+        @GetMapping("/{id_dislocation}")
+        public ResponseEntity<?> getDislocations (@PathVariable Integer id_dislocation) {
             try {
-                if (dislocationsRepository.existsById(id)) {
-                    Dislocations result = dislocationsRepository.findById(id).get();
-                    DislocationsOutDTO dislocationsOutDTO = modelMapper.map(result, DislocationsOutDTO.class);
-                    return ResponseEntity.ok(dislocationsOutDTO);
-                }
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.ok(dislocationsService.getDislocations(id_dislocation));
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
-        @DeleteMapping("/{id}")
-        public ResponseEntity<String> deleteDislocations(@PathVariable Integer id) {
+        @DeleteMapping("/{id_dislocation}")
+        public ResponseEntity<?> deleteDislocations(@PathVariable Integer id_dislocation) {
             try {
-                if (!dislocationsRepository.existsById(id)) {
-                    return ResponseEntity.badRequest().body("Дислокации не существует");
-                }
-                dislocationsRepository.deleteById(id);
-                return ResponseEntity.ok("Успех");
+                dislocationsService.deleteDislocations(id_dislocation);
+                return ResponseEntity.ok("Дислокация удалена");
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(" ");
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
         @PostMapping("/add")
-        public ResponseEntity<String> addDislocations(@RequestBody DislocationsDTO dislocationsDTO ) {
+        public ResponseEntity<?> addDislocations(@RequestBody DislocationsDTO request ) {
             try {
-                dislocationsDTO.setId_dislocation(null);
-
-                Dislocations dislocation = new Dislocations(null, dislocationsDTO.getCity());
-
-                dislocationsRepository.save(dislocation);
-
-                return ResponseEntity.ok("Успех");
+                dislocationsService.addDislocations(request);
+                return ResponseEntity.ok("Дислокация добавлена");
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body("Ошибка");
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
         @PostMapping("/edit")
-        public ResponseEntity<String> editDislocations(@RequestBody DislocationsDTO dislocationsDTO) {
+        public ResponseEntity<?>editDislocations(@RequestBody DislocationsDTO request) {
             try {
-                if(!dislocationsRepository.existsById(dislocationsDTO.getId_dislocation())) {
-                    return ResponseEntity.badRequest().body("Дислокации не существует");
-                }
-
-                Dislocations dislocation = new Dislocations(dislocationsDTO.getId_dislocation(), dislocationsDTO.getCity());
-                dislocationsRepository.save(dislocation);
-
-                return ResponseEntity.ok("Успех");
+                dislocationsService.editDislocations(request);
+                return ResponseEntity.ok("Дислокация изменена");
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body("Ошибка");
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
-    }
+}

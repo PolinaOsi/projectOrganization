@@ -1,15 +1,14 @@
 package projectOrganization.controllers;
 
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import projectOrganization.dto.*;
-import projectOrganization.entity.Companies;
-import projectOrganization.repository.CompaniesRepository;
+import projectOrganization.models.CompaniesModel;
+import projectOrganization.services.CompaniesService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -17,78 +16,55 @@ import java.util.List;
 public class CompaniesController {
 
         @Autowired
-        private CompaniesRepository companiesRepository;
-
-        private final ModelMapper modelMapper = new ModelMapper();
+        private CompaniesService companiesService;
 
         @GetMapping("/all")
-        public ResponseEntity<List<CompaniesOutDTO>> getAllCompanies() {
+        public ResponseEntity<?> getAllCompanies() {
             try {
-                List<Companies> result = companiesRepository.findAll();
-                List<CompaniesOutDTO> companiesOutDTO = modelMapper.map(result, new TypeToken<List<CompaniesOutDTO>>() {
-                }.getType());
-                return ResponseEntity.ok(companiesOutDTO);
+                List<CompaniesModel> companiesModelList = new ArrayList<>();
+                companiesService.getAllCompanies().forEach(company -> companiesModelList.add(CompaniesModel.toModel(company)));
+                return ResponseEntity.ok(companiesModelList);
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
-        @GetMapping("/{id}")
-        public ResponseEntity<CompaniesOutDTO> getCompanies(@PathVariable Integer id) {
+        @GetMapping("/{id_company}")
+        public ResponseEntity<?> getCompanies(@PathVariable Integer id_company) {
             try {
-                if (companiesRepository.existsById(id)) {
-                    Companies result = companiesRepository.findById(id).get();
-                    CompaniesOutDTO companiesOutDTO = modelMapper.map(result, CompaniesOutDTO.class);
-                    return ResponseEntity.ok(companiesOutDTO);
-                }
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.ok( companiesService.getCompanies(id_company));
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
-        @DeleteMapping("/{id}")
-        public ResponseEntity<String> deleteCompanies(@PathVariable Integer id) {
+        @DeleteMapping("/{id_company}")
+        public ResponseEntity<?> deleteCompanies(@PathVariable Integer id_company) {
             try {
-                if (!companiesRepository.existsById(id)) {
-                    return ResponseEntity.badRequest().body("Роты не существует");
-                }
-                companiesRepository.deleteById(id);
-                return ResponseEntity.ok("Успех");
+                companiesService.deleteCompanies(id_company);
+                return ResponseEntity.ok("Рота удалена");
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(" ");
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
         @PostMapping("/add")
-        public ResponseEntity<String> addCompanies(@RequestBody CompaniesDTO companiesDTO ) {
+        public ResponseEntity<?>addCompanies(@RequestBody CompaniesDTO request ) {
             try {
-                companiesDTO.setId_company(null);
-
-                Companies company = new Companies(null, companiesDTO.getId_unit());
-
-                companiesRepository.save(company);
-
-                return ResponseEntity.ok("Успех");
+                companiesService.addCompanies(request);
+                return ResponseEntity.ok("Рота добавлена");
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body("Ошибка");
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
         @PostMapping("/edit")
-        public ResponseEntity<String> editCompanies(@RequestBody CompaniesDTO companiesDTO) {
+        public ResponseEntity<?> editCompanies(@RequestBody CompaniesDTO request) {
             try {
-                if(!companiesRepository.existsById(companiesDTO.getId_company())) {
-                    return ResponseEntity.badRequest().body("Роты не существует");
-                }
-
-                Companies company = new Companies(companiesDTO.getId_company(),
-                        companiesDTO.getId_unit());
-                companiesRepository.save(company);
-
-                return ResponseEntity.ok("Успех");
+                companiesService.editCompanies(request);
+                return ResponseEntity.ok("Рота изменена");
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body("Ошибка");
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
-    }
+}

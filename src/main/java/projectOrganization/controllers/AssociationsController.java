@@ -1,15 +1,15 @@
 package projectOrganization.controllers;
 
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import projectOrganization.dto.*;
-import projectOrganization.entity.Associations;
-import projectOrganization.repository.AssociationsRepository;
+import projectOrganization.models.ArmiesModel;
+import projectOrganization.models.AssociationsModel;
+import projectOrganization.services.AssociationsService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -17,83 +17,56 @@ import java.util.List;
 public class AssociationsController {
 
         @Autowired
-        private AssociationsRepository associationsRepository;
-
-        private final ModelMapper modelMapper = new ModelMapper();
+        private AssociationsService associationsService;
 
         @GetMapping("/all")
-        public ResponseEntity<List<AssociationsOutDTO>> getAllAssociations() {
+        public ResponseEntity<?> getAllAssociations() {
             try {
-                List<Associations> result = associationsRepository.findAll();
-                List<AssociationsOutDTO> associationsOutDTO = modelMapper.map(result, new TypeToken<List<AssociationsOutDTO>>() {
-                }.getType());
-                return ResponseEntity.ok(associationsOutDTO);
+                List<AssociationsModel> associationsModelList = new ArrayList<>();
+                associationsService.getAllAssociations().forEach(association -> associationsModelList.add(AssociationsModel.toModel(association)));
+                return ResponseEntity.ok(associationsModelList);
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
-        @GetMapping("/{id}")
-        public ResponseEntity<AssociationsOutDTO> getAssociations (@PathVariable Integer id) {
+        @GetMapping("/{id_association}")
+        public ResponseEntity<?> getAssociations (@PathVariable Integer id_association) {
             try {
-                if (associationsRepository.existsById(id)) {
-                    Associations result = associationsRepository.findById(id).get();
-                    AssociationsOutDTO associationsOutDTO = modelMapper.map(result, AssociationsOutDTO.class);
-                    return ResponseEntity.ok(associationsOutDTO);
-                }
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.ok(associationsService.getAssociations(id_association));
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
-        @DeleteMapping("/{id}")
-        public ResponseEntity<String> deleteAssociations(@PathVariable Integer id) {
+        @DeleteMapping("/{id_association}")
+        public ResponseEntity<?> deleteAssociations(@PathVariable Integer id_association) {
             try {
-                if (!associationsRepository.existsById(id)) {
-                    return ResponseEntity.badRequest().body("Объединения не существует");
-                }
-                associationsRepository.deleteById(id);
-                return ResponseEntity.ok("Успех");
+                associationsService.deleteAssociations(id_association);
+                return ResponseEntity.ok("Объединение удалено");
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(" ");
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
     @PostMapping("/add")
-    public ResponseEntity<String> addAssociations(@RequestBody AssociationsDTO associationsDTO ) {
+    public ResponseEntity<?> addAssociations(@RequestBody AssociationsDTO request) {
         try {
-            associationsDTO.setId_association(null);
-
-            Associations association = new Associations(null, associationsDTO.getType_association(),
-                    associationsDTO.getNum_association(),
-                    associationsDTO.getName_association());
-
-            associationsRepository.save(association);
-
-            return ResponseEntity.ok("Успех");
+            associationsService.addAssociations(request);
+            return ResponseEntity.ok("Оъединение добавлено");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Ошибка");
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PostMapping("/edit")
-    public ResponseEntity<String> editAssociations(@RequestBody AssociationsDTO associationsDTO) {
+    public ResponseEntity<?> editAssociations(@RequestBody AssociationsDTO request) {
         try {
-            if(!associationsRepository.existsById(associationsDTO.getId_association())) {
-                return ResponseEntity.badRequest().body("Объединения не существует");
-            }
-
-            Associations association = new Associations(associationsDTO.getId_association(),
-                    associationsDTO.getType_association(),
-                    associationsDTO.getNum_association(),
-                    associationsDTO.getName_association());
-            associationsRepository.save(association);
-
-            return ResponseEntity.ok("Успех");
+            associationsService.editAssociations(request);
+            return ResponseEntity.ok("Оъединение изменено");
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Ошибка");
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-    }
+}
 

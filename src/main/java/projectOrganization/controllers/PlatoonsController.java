@@ -1,92 +1,72 @@
 package projectOrganization.controllers;
 
 import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import projectOrganization.dto.*;
-import projectOrganization.entity.Platoons;
-import projectOrganization.repository.PlatoonsRepository;
+import projectOrganization.models.PlatoonsModel;
+import projectOrganization.services.PlatoonsService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
 @RequestMapping(path = "/platoons")
 public class PlatoonsController {
         @Autowired
-        private PlatoonsRepository platoonsRepository;
+        private PlatoonsService platoonsService;
 
         private final ModelMapper modelMapper = new ModelMapper();
 
         @GetMapping("/all")
-        public ResponseEntity<List<PlatoonsOutDTO>> getAllPlatoons() {
+        public ResponseEntity<?> getAllPlatoons() {
             try {
-                List<Platoons> result = platoonsRepository.findAll();
-                List<PlatoonsOutDTO> platoonsOutDTO = modelMapper.map(result, new TypeToken<List<PlatoonsOutDTO>>() {
-                }.getType());
-                return ResponseEntity.ok(platoonsOutDTO);
+                List<PlatoonsModel> platoonsModelList = new ArrayList<>();
+                platoonsService.getAllPlatoons().forEach(platoon -> platoonsModelList.add(PlatoonsModel.toModel(platoon)));
+                return ResponseEntity.ok(platoonsModelList);
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
-        @GetMapping("/{id}")
-        public ResponseEntity<PlatoonsOutDTO> getPlatoons(@PathVariable Integer id) {
+        @GetMapping("/{id_platoon}")
+        public ResponseEntity<?> getPlatoons(@PathVariable Integer id_platoon) {
             try {
-                if (platoonsRepository.existsById(id)) {
-                    Platoons result = platoonsRepository.findById(id).get();
-                    PlatoonsOutDTO platoonsOutDTO = modelMapper.map(result, PlatoonsOutDTO.class);
-                    return ResponseEntity.ok(platoonsOutDTO);
-                }
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.ok(platoonsService.getPlatoons(id_platoon));
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(null);
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
-        @DeleteMapping("/{id}")
-        public ResponseEntity<String> deletePlatoons(@PathVariable Integer id) {
+        @DeleteMapping("/{id_platoon}")
+        public ResponseEntity<?> deletePlatoons(@PathVariable Integer id_platoon) {
             try {
-                if (!platoonsRepository.existsById(id)) {
-                    return ResponseEntity.badRequest().body("Взвода не существует");
-                }
-                platoonsRepository.deleteById(id);
-                return ResponseEntity.ok("Успех");
+                platoonsService.deletePlatoons(id_platoon);
+                return ResponseEntity.ok("Взвод удален");
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body(" ");
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
         @PostMapping("/add")
-        public ResponseEntity<String> addPlatoons(@RequestBody PlatoonsDTO platoonsDTO ) {
+        public ResponseEntity<?> addPlatoons(@RequestBody PlatoonsDTO request ) {
             try {
-                platoonsDTO.setId_platoon(null);
-
-                Platoons platoon = new Platoons(null, platoonsDTO.getId_company());
-
-                platoonsRepository.save(platoon);
-
-                return ResponseEntity.ok("Успех");
+                platoonsService.addPlatoons(request);
+                return ResponseEntity.ok("Взвод добавлен");
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body("Ошибка");
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 
         @PostMapping("/edit")
-        public ResponseEntity<String> editPlatoons(@RequestBody PlatoonsDTO platoonsDTO) {
+        public ResponseEntity<?> editPlatoons(@RequestBody PlatoonsDTO request) {
             try {
-                if(!platoonsRepository.existsById(platoonsDTO.getId_platoon())) {
-                    return ResponseEntity.badRequest().body("Взвода не существует");
-                }
-
-                Platoons platoon = new Platoons(platoonsDTO.getId_platoon(), platoonsDTO.getId_company());
-                platoonsRepository.save(platoon);
-
-                return ResponseEntity.ok("Успех");
+                platoonsService.editPlatoons(request);
+                return ResponseEntity.ok("Взвод изменен");
             } catch (Exception e) {
-                return ResponseEntity.badRequest().body("Ошибка");
+                return ResponseEntity.badRequest().body(e.getMessage());
             }
         }
 }
