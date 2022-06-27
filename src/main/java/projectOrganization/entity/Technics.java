@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -16,19 +17,20 @@ public class Technics {
         @Column(name = "id_technic")
         private Integer id_technic;
 
+        @Column(name = "category",  nullable = false)
+        private String category;
+
         @Column(name = "name_technic", nullable = false)
         private String name_technic;
-
 
         @Column(name = "count_technic")
         private Integer count_technic;
 
-
         @Column(name = "id_unit")
         private Integer id_unit;
 
-        @ManyToMany
-        private List<Military_units> military_units;
+        @ManyToMany(mappedBy = "technics")
+        private List<Military_units> military_units = new ArrayList<>();
 
     public Technics(Integer id_technic, String name_technic, Integer count_technic, Integer id_unit) {
         this.id_technic = id_technic;

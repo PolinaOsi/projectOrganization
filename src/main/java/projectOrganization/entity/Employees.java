@@ -25,6 +25,9 @@ public class Employees {
         @Column(name = "patronymic_employee", nullable = false)
         private String patronymic_employee;
 
+        @Column(name = "id_boss")
+        private Integer id_boss;
+
         @Column(name = "date_birth", nullable = false)
         private String date_birth;
 
@@ -61,13 +64,15 @@ public class Employees {
         @ManyToOne
         private Associations association;
 
-    public Employees(Integer id_employee, String name_employee, String surname_employee,
-                     String patronymic_employee, String date_birth, Integer id_association,
-                     Integer id_rank, Integer id_army, Integer id_unit, Integer id_department, String characteristic) {
+        @ManyToOne
+        private Employees employee;
+
+    public Employees(Integer id_employee, String name_employee, String surname_employee, String patronymic_employee, Integer id_boss, String date_birth, Integer id_association, Integer id_rank, Integer id_army, Integer id_unit, Integer id_department, String characteristic) {
         this.id_employee = id_employee;
         this.name_employee = name_employee;
         this.surname_employee = surname_employee;
         this.patronymic_employee = patronymic_employee;
+        this.id_boss = id_boss;
         this.date_birth = date_birth;
         this.id_association = id_association;
         this.id_rank = id_rank;
@@ -75,14 +80,10 @@ public class Employees {
         this.id_unit = id_unit;
         this.id_department = id_department;
         this.characteristic = characteristic;
-        this.army = null;
-        this.rank = null;
-        this.department = null;
-        this.military_unit = null;
-        this.association = null;
     }
 
     public Employees() { }
+
 
     public Integer getId_employee() {
         return id_employee;
@@ -115,6 +116,10 @@ public class Employees {
     public void setPatronymic_employee(String patronymic_employee) {
         this.patronymic_employee = patronymic_employee;
     }
+
+    public Integer getId_boss() { return id_boss; }
+
+    public void setId_boss(Integer id_boss) { this.id_boss = id_boss; }
 
     public String getDate_birth() {
         return date_birth;

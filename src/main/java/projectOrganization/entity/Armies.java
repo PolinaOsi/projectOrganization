@@ -22,6 +22,9 @@ public class Armies {
         @OneToMany
         private List<Employees> employees;
 
+        @OneToMany
+        private List<Associations> associations;
+
     public Armies(Integer id_army, String name_army) {
         this.id_army = id_army;
         this.name_army = name_army;

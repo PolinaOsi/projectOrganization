@@ -7,11 +7,10 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Entity
 @Setter
 @Getter
-@Table(name = "militery_units")
+@Table(name = "military_units")
 
     public class Military_units {
         @Id
@@ -28,19 +27,19 @@ import java.util.List;
         @Column(name = "id_dislocation")
         private Integer id_dislocation;
 
-        @ManyToMany
+        @OneToMany
         private List<Employees> employees;
 
         @ManyToMany
         @JoinTable(
-                name = "militery_units_armaments",
+                name = "military_units_armaments",
                 joinColumns = @JoinColumn (name = "military_units_id_unit"),
                 inverseJoinColumns = @JoinColumn (name = "armaments_id_armament")
         )
         private List<Armaments> armaments = new ArrayList<>();
 
-        @ManyToMany
-        private List<Dislocations> dislocations;
+        @ManyToMany(mappedBy = "military_units")
+        private List<Dislocations> dislocations = new ArrayList<>();
 
         @ManyToOne
         private Associations associations;
@@ -48,12 +47,17 @@ import java.util.List;
         @OneToMany
         private List<Companies> companies;
 
+        @ManyToMany
+        @JoinTable(
+                name = "military_units_technics",
+                joinColumns = @JoinColumn (name = "military_units_id_unit"),
+                inverseJoinColumns = @JoinColumn (name = "technics_id_technic")
+        )
+        private List<Technics> technics = new ArrayList<>();
 
-//    public Military_units(Integer id_unit, String name_unit, Integer num_association) {
-//        this.id_unit = id_unit;
-//        this.name_unit = name_unit;
-//        this.num_association = num_association;
-//    }
+        @OneToMany
+        private List<Constructions> constructions;
+
 
     public Military_units(Integer id_unit, String name_unit, Integer id_association, Integer id_dislocation) {
         this.id_unit = id_unit;
@@ -102,6 +106,6 @@ import java.util.List;
     public void addArmament (Armaments armament) {
         armaments.add(armament);
     }
+
+    public void addTechnic (Technics technic) { technics.add(technic); }
 }
-
-

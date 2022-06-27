@@ -7,6 +7,7 @@ public class EmployeesOutDTO {
     private String name_employee;
     private String surname_employee;
     private String patronymic_employee;
+    private Integer id_boss;
     private String date_birth;
     private Integer id_association;
     private Integer id_rank;

@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -21,7 +22,13 @@ public class Dislocations {
     private String city;
 
     @ManyToMany
-    private List<Military_units> military_units;
+    @JoinTable(
+            name = "military_units_dislocations",
+            joinColumns = @JoinColumn (name = "dislocations_id_dislocation"),
+            inverseJoinColumns = @JoinColumn (name = "military_units_id_unit")
+    )
+    private List<Military_units> military_units = new ArrayList<>();
+
 
     public Dislocations(Integer id_dislocation, String city) {
         this.id_dislocation = id_dislocation;
@@ -46,4 +53,6 @@ public class Dislocations {
     public void setCity(String city) {
         this.city = city;
     }
+
+    public void addMilitaryUnits (Military_units military_unit) { military_units.add(military_unit); }
 }

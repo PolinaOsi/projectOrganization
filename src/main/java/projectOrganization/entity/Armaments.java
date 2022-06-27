@@ -17,6 +17,9 @@ public class Armaments {
         @Column(name = "id_armament")
         private Integer id_armament;
 
+        @Column(name = "category", nullable = false)
+        private String category;
+
         @Column(name = "name_armament", nullable = false)
         private String name_armament;
 

@@ -4,6 +4,7 @@ package projectOrganization.services;
         import org.springframework.stereotype.Service;
         import org.springframework.web.bind.annotation.RequestBody;
         import projectOrganization.dto.ArmamentsDTO;
+        import projectOrganization.dto.Military_unitsOutDTO;
         import projectOrganization.entity.Armaments;
         import projectOrganization.repository.ArmamentsRepository;
 
@@ -51,5 +52,20 @@ public class ArmamentsService {
             return ResponseEntity.badRequest().body("Ошибка");
         }
     }
+
+//    public ResponseEntity<List<Armaments>> getUnitsArmamentMoreTen (String name_armament) {
+//        try {
+//            List<Armaments> result = armamentsRepository.findByName_armament(name_armament);
+//            result.forEach(armament -> {
+//                if(armament.getCount_armament() < 10) {
+//                    result.remove(armament);
+//                }
+//            });
+//            return ResponseEntity.ok().body(result);
+//        }
+//        catch (Exception e) {
+//            return ResponseEntity.badRequest().body(null);
+//        }
+//    }
 }
 

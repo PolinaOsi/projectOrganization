@@ -28,6 +28,7 @@ public class EmployeesService {
         employee.setName_employee(request.getName_employee());
         employee.setSurname_employee(request.getSurname_employee());
         employee.setPatronymic_employee(request.getPatronymic_employee());
+        employee.setId_boss(request.getId_boss());
         employee.setDate_birth(request.getDate_birth());
         employee.setId_association(request.getId_association());
         employee.setId_rank(request.getId_rank());
@@ -50,7 +51,7 @@ public class EmployeesService {
             }
 
             Employees employee = new Employees(employeesDTO.getId_employee(), employeesDTO.getName_employee(),
-                    employeesDTO.getSurname_employee(), employeesDTO.getPatronymic_employee(),
+                    employeesDTO.getSurname_employee(), employeesDTO.getPatronymic_employee(), employeesDTO.getId_boss(),
                     employeesDTO.getDate_birth(), employeesDTO.getId_association(),
                     employeesDTO.getId_rank(), employeesDTO.getId_army(),
                     employeesDTO.getId_unit(), employeesDTO.getId_department(),

@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.*;
 import projectOrganization.dto.*;
 import projectOrganization.entity.Armaments;
 import projectOrganization.entity.Military_units;
+import projectOrganization.entity.Technics;
 import projectOrganization.models.Military_unitsModel;
 import projectOrganization.repository.ArmamentsRepository;
 import projectOrganization.repository.Military_unitsRepository;
+import projectOrganization.repository.TechnicsRepository;
 import projectOrganization.services.Military_unitsService;
 
 import java.util.ArrayList;
@@ -24,9 +26,11 @@ public class Military_unitsController {
     private ArmamentsRepository armamentsRepository;
     @Autowired
     private Military_unitsService military_unitsService;
+    @Autowired
+    private TechnicsRepository technicsRepository;
 
     @GetMapping("/all")
-    public ResponseEntity<?>  getAllMilitaryUnits() {
+    public ResponseEntity<?> getAllMilitaryUnits() {
         try {
             List<Military_unitsModel> military_unitsModelList = new ArrayList<>();
             military_unitsService.getAllMilitaryUnits().forEach(military_unit -> military_unitsModelList.add(Military_unitsModel.toModel(military_unit)));
@@ -37,7 +41,7 @@ public class Military_unitsController {
     }
 
     @GetMapping("/{id_unit}")
-    public ResponseEntity<?>  getMilitaryUnits(@PathVariable Integer id_unit) {
+    public ResponseEntity<?> getMilitaryUnits(@PathVariable Integer id_unit) {
         try {
             return ResponseEntity.ok(military_unitsService.getMilitaryUnits(id_unit));
         } catch (Exception e) {
@@ -46,7 +50,7 @@ public class Military_unitsController {
     }
 
     @DeleteMapping("/{id_unit}")
-    public ResponseEntity<?>  deleteMilitaryUnits(@PathVariable Integer id_unit) {
+    public ResponseEntity<?> deleteMilitaryUnits(@PathVariable Integer id_unit) {
         try {
             military_unitsService.deleteMilitaryUnits(id_unit);
             return ResponseEntity.ok("Военная чать удалена");
@@ -56,7 +60,7 @@ public class Military_unitsController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<?>  addMilitaryUnits(@RequestBody Military_unitsDTO request ) {
+    public ResponseEntity<?> addMilitaryUnits(@RequestBody Military_unitsDTO request ) {
     try {
         military_unitsService.addMilitaryUnits(request);
         return ResponseEntity.ok("Военная часть добавлена");
@@ -89,6 +93,29 @@ public class Military_unitsController {
             Military_units military_unit = military_unitsRepository.findById(id_unit).get();
 
             military_unit.addArmament(armament);
+
+            military_unitsRepository.save(military_unit);
+
+            return ResponseEntity.ok("Успех");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("{id_unit}/technics/{id_technic}")
+    public ResponseEntity<String> addTechnicsToUnit(@PathVariable Integer id_unit, @PathVariable Integer id_technic) {
+        try {
+            if(!technicsRepository.existsById(id_technic)) {
+                return ResponseEntity.badRequest().body("Техники не существует");
+            }
+            if(!military_unitsRepository.existsById(id_unit)) {
+                return ResponseEntity.badRequest().body("Военной части не существует");
+            }
+
+            Technics technic = technicsRepository.findById(id_technic).get();
+            Military_units military_unit = military_unitsRepository.findById(id_unit).get();
+
+            military_unit.addTechnic(technic);
 
             military_unitsRepository.save(military_unit);
 

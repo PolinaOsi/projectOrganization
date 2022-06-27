@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -23,7 +24,12 @@ public class Ranks {
         private String category;
 
         @ManyToMany
-        private List<Employees> employees;
+        @JoinTable(
+                name = "ranks_employees",
+                joinColumns = @JoinColumn (name = "ranks_id_rank"),
+                inverseJoinColumns = @JoinColumn (name = "employees_id_employee")
+        )
+        private List<Employees> employees = new ArrayList<>();
 
     public Ranks(Integer id_rank, String name_rank, String category) {
         this.id_rank = id_rank;

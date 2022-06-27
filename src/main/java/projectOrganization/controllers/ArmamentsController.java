@@ -65,4 +65,14 @@ public class ArmamentsController {
                         return ResponseEntity.badRequest().body(e.getMessage());
                 }
         }
+//
+//        @GetMapping("/{name_armament}")
+//        public ResponseEntity<?> getUnitsArmamentMoreTen(@PathVariable String name_armament) {
+//                try {
+//                        armamentsService.getUnitsArmamentMoreTen(name_armament);
+//                        return null;
+//                } catch (Exception e) {
+//                        return ResponseEntity.badRequest().body(e.getMessage());
+//                }
+//        }
 }

@@ -31,6 +31,9 @@ public class Associations {
         @OneToMany
         private List<Employees> employees;
 
+        @ManyToOne
+        private Armies army;
+
 
     public Associations(Integer id_association, String type_association, Integer num_association, String name_association) {
         this.id_association = id_association;

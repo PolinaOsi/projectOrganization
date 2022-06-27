@@ -11,6 +11,7 @@ public class EmployeesModel {
     private String name_employee;
     private String surname_employee;
     private String patronymic_employee;
+    private Integer id_boss;
     private String date_birth;
     private Integer id_association;
     private Integer id_rank;
@@ -25,6 +26,7 @@ public class EmployeesModel {
         model.setName_employee(employee.getName_employee());
         model.setSurname_employee(employee.getSurname_employee());
         model.setPatronymic_employee(employee.getPatronymic_employee());
+        model.setId_boss(employee.getId_boss());
         model.setDate_birth(employee.getDate_birth());
         model.setId_association(employee.getId_association());
         model.setId_rank(employee.getId_rank());

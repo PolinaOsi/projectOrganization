@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Setter
@@ -20,6 +21,9 @@ public class Platoons {
 
         @ManyToOne
         private Companies companies;
+
+        @OneToMany
+        private List<Departments> departments;
 
 
     public Platoons(Integer id_platoon, Integer id_company) {
