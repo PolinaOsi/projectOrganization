@@ -26,15 +26,14 @@ public class EmployeesModel {
         model.setName_employee(employee.getName_employee());
         model.setSurname_employee(employee.getSurname_employee());
         model.setPatronymic_employee(employee.getPatronymic_employee());
-        model.setId_boss(employee.getId_boss());
+        model.setId_boss(employee.getEmployee().getId_employee());
         model.setDate_birth(employee.getDate_birth());
-        model.setId_association(employee.getId_association());
-        model.setId_rank(employee.getId_rank());
-        model.setId_army(employee.getId_army());
-        model.setId_unit(employee.getId_unit());
-        model.setId_department(employee.getId_department());
+        model.setId_association(employee.getAssociation().getId_association());
+        model.setId_rank(employee.getRanks().getId_rank());
+        model.setId_army(employee.getArmy().getId_army());
+        model.setId_unit(employee.getMilitary_unit().getId_unit());
+        model.setId_department(employee.getDepartment().getId_department());
         model.setCharacteristic(employee.getCharacteristic());
-
         return model;
     }
 }

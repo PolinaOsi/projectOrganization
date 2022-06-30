@@ -26,6 +26,7 @@ public class TechnicsService {
         Technics technic = new Technics();
 
         technic.setId_technic(request.getId_unit());
+        technic.setCategory(request.getCategory());
         technic.setName_technic(request.getName_technic());
         technic.setCount_technic(request.getCount_technic());
         technic.setId_unit(request.getId_unit());
@@ -43,7 +44,13 @@ public class TechnicsService {
                 return ResponseEntity.badRequest().body("Техники не существует");
             }
 
-            Technics technic = new Technics(technicsDTO.getId_technic(), technicsDTO.getName_technic(), technicsDTO.getCount_technic(), technicsDTO.getId_unit());
+            Technics technic = technicsRepository.findById(technicsDTO.getId_technic()).get();
+
+            technic.setId_technic(technicsDTO.getId_technic());
+            technic.setCategory(technicsDTO.getCategory());
+            technic.setName_technic(technicsDTO.getName_technic());
+            technic.setCount_technic(technicsDTO.getCount_technic());
+            technic.setId_unit(technicsDTO.getId_unit());
             technicsRepository.save(technic);
 
             return ResponseEntity.ok("Успех");

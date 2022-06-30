@@ -6,10 +6,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import projectOrganization.dto.*;
 import projectOrganization.entity.Armaments;
+import projectOrganization.entity.Dislocations;
 import projectOrganization.entity.Military_units;
 import projectOrganization.entity.Technics;
 import projectOrganization.models.Military_unitsModel;
 import projectOrganization.repository.ArmamentsRepository;
+import projectOrganization.repository.DislocationsRepository;
 import projectOrganization.repository.Military_unitsRepository;
 import projectOrganization.repository.TechnicsRepository;
 import projectOrganization.services.Military_unitsService;
@@ -28,6 +30,8 @@ public class Military_unitsController {
     private Military_unitsService military_unitsService;
     @Autowired
     private TechnicsRepository technicsRepository;
+    @Autowired
+    private DislocationsRepository dislocationsRepository;
 
     @GetMapping("/all")
     public ResponseEntity<?> getAllMilitaryUnits() {
@@ -116,6 +120,29 @@ public class Military_unitsController {
             Military_units military_unit = military_unitsRepository.findById(id_unit).get();
 
             military_unit.addTechnic(technic);
+
+            military_unitsRepository.save(military_unit);
+
+            return ResponseEntity.ok("Успех");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("{id_unit}/dislocations/{id_dislocation}")
+    public ResponseEntity<String> addDislocationToUnits(@PathVariable Integer id_unit, @PathVariable Integer id_dislocation) {
+        try {
+            if(!dislocationsRepository.existsById(id_dislocation)) {
+                return ResponseEntity.badRequest().body("Дислокации не существует");
+            }
+            if(!military_unitsRepository.existsById(id_unit)) {
+                return ResponseEntity.badRequest().body("Военной части не существует");
+            }
+
+            Dislocations dislocation = dislocationsRepository.findById(id_dislocation).get();
+            Military_units military_unit = military_unitsRepository.findById(id_unit).get();
+
+            military_unit.addDislocation(dislocation);
 
             military_unitsRepository.save(military_unit);
 

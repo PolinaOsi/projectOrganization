@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import projectOrganization.dto.CompaniesDTO;
 import projectOrganization.entity.Companies;
+import projectOrganization.entity.Military_units;
 import projectOrganization.repository.CompaniesRepository;
+import projectOrganization.repository.Military_unitsRepository;
 
 import java.util.List;
 
@@ -13,6 +15,8 @@ import java.util.List;
 public class CompaniesService {
     @Autowired
     CompaniesRepository companiesRepository;
+    @Autowired
+    Military_unitsRepository military_unitsRepository;
 
     public List<Companies> getAllCompanies() throws Exception {
         return (List<Companies>) companiesRepository.findAll();
@@ -25,7 +29,8 @@ public class CompaniesService {
     public void addCompanies(CompaniesDTO request) {
         Companies company = new Companies();
         company.setId_company(request.getId_company());
-        company.setId_unit(request.getId_unit());
+        Military_units military_unit = military_unitsRepository.findById(request.getId_unit()).get();
+        company.setMilitary_units(military_unit);
 
         companiesRepository.save(company);
     }
@@ -41,7 +46,11 @@ public class CompaniesService {
                 return ResponseEntity.badRequest().body("Роты не существует");
             }
 
-            Companies company = new Companies(companiesDTO.getId_company(), companiesDTO.getId_unit());
+            Companies company = companiesRepository.findById(companiesDTO.getId_company()).get();
+
+            company.setId_company(companiesDTO.getId_company());
+            Military_units military_unit = military_unitsRepository.findById(companiesDTO.getId_unit()).get();
+            company.setMilitary_units(military_unit);
             companiesRepository.save(company);
 
             return ResponseEntity.ok("Успех");

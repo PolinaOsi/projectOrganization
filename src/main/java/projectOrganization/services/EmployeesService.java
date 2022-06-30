@@ -4,8 +4,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import projectOrganization.dto.EmployeesDTO;
-import projectOrganization.entity.Employees;
-import projectOrganization.repository.EmployeesRepository;
+import projectOrganization.dto.Military_unitsDTO;
+import projectOrganization.entity.*;
+import projectOrganization.repository.*;
 
 import java.util.List;
 
@@ -13,6 +14,16 @@ import java.util.List;
 public class EmployeesService {
     @Autowired
     EmployeesRepository employeesRepository;
+    @Autowired
+    AssociationsRepository associationsRepository;
+    @Autowired
+    RanksRepository ranksRepository;
+    @Autowired
+    ArmiesRepository armiesRepository;
+    @Autowired
+    Military_unitsRepository military_unitsRepository;
+    @Autowired
+    DepartmentsRepository departmentsRepository;
 
     public List<Employees> getAllEmployees() throws Exception {
         return (List<Employees>) employeesRepository.findAll();
@@ -24,17 +35,24 @@ public class EmployeesService {
 
     public void addEmployees(EmployeesDTO request) {
         Employees employee = new Employees();
+
         employee.setId_employee(request.getId_employee());
         employee.setName_employee(request.getName_employee());
         employee.setSurname_employee(request.getSurname_employee());
         employee.setPatronymic_employee(request.getPatronymic_employee());
-        employee.setId_boss(request.getId_boss());
+        Employees boss = employeesRepository.findById(request.getId_employee()).get();
+        employee.setEmployee(boss);
         employee.setDate_birth(request.getDate_birth());
-        employee.setId_association(request.getId_association());
-        employee.setId_rank(request.getId_rank());
-        employee.setId_army(request.getId_army());
-        employee.setId_unit(request.getId_unit());
-        employee.setId_department(request.getId_department());
+        Associations association = associationsRepository.findById(request.getId_association()).get();
+        employee.setAssociation(association);
+        Ranks ranks = ranksRepository.findById(request.getId_rank()).get();
+        employee.setRanks(ranks);
+        Armies army = armiesRepository.findById(request.getId_rank()).get();
+        employee.setArmy(army);
+        Military_units military_units = military_unitsRepository.findById(request.getId_unit()).get();
+        employee.setMilitary_unit(military_units);
+        Departments departments = departmentsRepository.findById(request.getId_department()).get();
+        employee.setDepartment(departments);
         employee.setCharacteristic(request.getCharacteristic());
         employeesRepository.save(employee);
     }
@@ -50,12 +68,26 @@ public class EmployeesService {
                 return ResponseEntity.badRequest().body("Сотрудника не существует");
             }
 
-            Employees employee = new Employees(employeesDTO.getId_employee(), employeesDTO.getName_employee(),
-                    employeesDTO.getSurname_employee(), employeesDTO.getPatronymic_employee(), employeesDTO.getId_boss(),
-                    employeesDTO.getDate_birth(), employeesDTO.getId_association(),
-                    employeesDTO.getId_rank(), employeesDTO.getId_army(),
-                    employeesDTO.getId_unit(), employeesDTO.getId_department(),
-                    employeesDTO.getCharacteristic());
+            Employees employee = employeesRepository.findById(employeesDTO.getId_employee()).get();
+
+            employee.setId_employee(employeesDTO.getId_employee());
+            employee.setName_employee(employeesDTO.getName_employee());
+            employee.setSurname_employee(employeesDTO.getSurname_employee());
+            employee.setPatronymic_employee(employeesDTO.getPatronymic_employee());
+            Employees boss = employeesRepository.findById(employeesDTO.getId_employee()).get();
+            employee.setEmployee(boss);
+            employee.setDate_birth(employeesDTO.getDate_birth());
+            Associations association = associationsRepository.findById(employeesDTO.getId_association()).get();
+            employee.setAssociation(association);
+            Ranks ranks = ranksRepository.findById(employeesDTO.getId_rank()).get();
+            employee.setRanks(ranks);
+            Armies army = armiesRepository.findById(employeesDTO.getId_rank()).get();
+            employee.setArmy(army);
+            Military_units military_units = military_unitsRepository.findById(employeesDTO.getId_unit()).get();
+            employee.setMilitary_unit(military_units);
+            Departments departments = departmentsRepository.findById(employeesDTO.getId_department()).get();
+            employee.setDepartment(departments);
+            employee.setCharacteristic(employeesDTO.getCharacteristic());
             employeesRepository.save(employee);
 
             return ResponseEntity.ok("Успех");

@@ -13,7 +13,7 @@ public class DepartmentsModel {
     public static DepartmentsModel toModel(Departments department) {
         DepartmentsModel model = new DepartmentsModel();
         model.setId_department(department.getId_department());
-        model.setId_platoon(department.getId_platoon());
+        model.setId_platoon(department.getPlatoons().getId_platoon());
 
         return model;
     }

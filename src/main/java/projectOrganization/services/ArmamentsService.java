@@ -1,14 +1,14 @@
 package projectOrganization.services;
-        import org.springframework.beans.factory.annotation.Autowired;
-        import org.springframework.http.ResponseEntity;
-        import org.springframework.stereotype.Service;
-        import org.springframework.web.bind.annotation.RequestBody;
-        import projectOrganization.dto.ArmamentsDTO;
-        import projectOrganization.dto.Military_unitsOutDTO;
-        import projectOrganization.entity.Armaments;
-        import projectOrganization.repository.ArmamentsRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
+import projectOrganization.dto.ArmamentsDTO;
+import projectOrganization.dto.Military_unitsOutDTO;
+import projectOrganization.entity.Armaments;
+import projectOrganization.repository.ArmamentsRepository;
 
-        import java.util.List;
+import java.util.List;
 
 @Service
 public class ArmamentsService {
@@ -27,6 +27,7 @@ public class ArmamentsService {
         Armaments armaments = new Armaments();
 
         armaments.setId_armament(request.getId_armament());
+        armaments.setCategory(request.getCategory());
         armaments.setName_armament(request.getName_armament());
         armaments.setCount_armament(request.getCount_armament());
         armaments.setId_unit(request.getId_unit());
@@ -44,7 +45,12 @@ public class ArmamentsService {
                 return ResponseEntity.badRequest().body("Вооружения не существует");
             }
 
-            Armaments armaments = new Armaments(armamentsDTO.getId_armament(), armamentsDTO.getName_armament(), armamentsDTO.getCount_armament(), armamentsDTO.getId_unit());
+            Armaments armaments = armamentsRepository.findById(armamentsDTO.getId_armament()).get();
+            armaments.setId_armament(armamentsDTO.getId_armament());
+            armaments.setCategory(armamentsDTO.getCategory());
+            armaments.setName_armament(armamentsDTO.getName_armament());
+            armaments.setCount_armament(armamentsDTO.getCount_armament());
+            armaments.setId_unit(armamentsDTO.getId_unit());
             armamentsRepository.save(armaments);
 
             return ResponseEntity.ok("Успех");

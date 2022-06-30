@@ -4,7 +4,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import projectOrganization.dto.PlatoonsDTO;
+import projectOrganization.entity.Companies;
 import projectOrganization.entity.Platoons;
+import projectOrganization.repository.CompaniesRepository;
 import projectOrganization.repository.PlatoonsRepository;
 
 import java.util.List;
@@ -13,6 +15,8 @@ import java.util.List;
 public class PlatoonsService {
     @Autowired
     PlatoonsRepository platoonsRepository;
+    @Autowired
+    CompaniesRepository companiesRepository;
     public List<Platoons> getAllPlatoons() throws Exception {
         return (List<Platoons>) platoonsRepository.findAll();
     }
@@ -25,7 +29,8 @@ public class PlatoonsService {
         Platoons platoon = new Platoons();
 
         platoon.setId_platoon(request.getId_platoon());
-        platoon.setId_company(request.getId_company());
+        Companies companies = companiesRepository.findById(request.getId_company()).get();
+        platoon.setCompanies(companies);
 
         platoonsRepository.save(platoon);
     }
@@ -41,7 +46,11 @@ public class PlatoonsService {
                 return ResponseEntity.badRequest().body("Взвода не существует");
             }
 
-            Platoons platoon = new Platoons(platoonsDTO.getId_platoon(), platoonsDTO.getId_company());
+            Platoons platoon = platoonsRepository.findById(platoonsDTO.getId_platoon()).get();
+
+            platoon.setId_platoon(platoonsDTO.getId_platoon());
+            Companies companies = companiesRepository.findById(platoonsDTO.getId_company()).get();
+            platoon.setCompanies(companies);
             platoonsRepository.save(platoon);
 
             return ResponseEntity.ok("Успех");

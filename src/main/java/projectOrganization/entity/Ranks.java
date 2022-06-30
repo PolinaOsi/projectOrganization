@@ -1,6 +1,8 @@
 package projectOrganization.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -10,6 +12,8 @@ import java.util.List;
 @Entity
 @Setter
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "ranks")
 public class Ranks {
         @Id
@@ -23,31 +27,6 @@ public class Ranks {
         @Column(name = "category", nullable = false)
         private String category;
 
-        @ManyToMany
-        @JoinTable(
-                name = "ranks_employees",
-                joinColumns = @JoinColumn (name = "ranks_id_rank"),
-                inverseJoinColumns = @JoinColumn (name = "employees_id_employee")
-        )
+        @OneToMany(fetch = FetchType.EAGER, mappedBy = "id_employee")
         private List<Employees> employees = new ArrayList<>();
-
-    public Ranks(Integer id_rank, String name_rank, String category) {
-        this.id_rank = id_rank;
-        this.name_rank = name_rank;
-        this.category = category;
-    }
-
-    public Ranks() { }
-
-    public Integer getId_rank() { return id_rank; }
-
-    public void setId_rank(Integer id_rank) { this.id_rank = id_rank; }
-
-    public String getName_rank() { return name_rank; }
-
-    public void setName_rank(String name_rank) { this.name_rank = name_rank; }
-
-    public String getCategory() { return category; }
-
-    public void setCategory(String category) { this.category = category; }
 }

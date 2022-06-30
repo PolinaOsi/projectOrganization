@@ -75,26 +75,4 @@ import java.util.List;
             }
         }
 
-        @PutMapping("{id_dislocation}/units/{id_unit}")
-        public ResponseEntity<String> addUnitsToDislocation(@PathVariable Integer id_dislocation, @PathVariable Integer id_unit) {
-            try {
-                if(!dislocationsRepository.existsById(id_dislocation)) {
-                    return ResponseEntity.badRequest().body("Дислокации не существует");
-                }
-                if(!military_unitsRepository.existsById(id_unit)) {
-                    return ResponseEntity.badRequest().body("Военной части не существует");
-                }
-
-                Dislocations dislocation = dislocationsRepository.findById(id_dislocation).get();
-                Military_units military_unit = military_unitsRepository.findById(id_unit).get();
-
-                dislocation.addMilitaryUnits(military_unit);
-
-                dislocationsRepository.save(dislocation);
-
-                return ResponseEntity.ok("Успех");
-            } catch (Exception e) {
-                return ResponseEntity.badRequest().body(e.getMessage());
-            }
-        }
 }

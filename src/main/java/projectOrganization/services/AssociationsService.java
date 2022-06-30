@@ -45,8 +45,11 @@ public class AssociationsService {
                 return ResponseEntity.badRequest().body("Объединения не существует");
             }
 
-            Associations association = new Associations(associationsDTO.getId_association(), associationsDTO.getType_association(),
-                    associationsDTO.getNum_association(), associationsDTO.getName_association());
+            Associations association = associationsRepository.findById(associationsDTO.getId_association()).get();
+            association.setId_association(associationsDTO.getId_association());
+            association.setType_association(associationsDTO.getType_association());
+             association.setNum_association(associationsDTO.getNum_association());
+             association.setName_association(associationsDTO.getName_association());
             associationsRepository.save(association);
 
             return ResponseEntity.ok("Успех");

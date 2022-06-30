@@ -1,14 +1,19 @@
 package projectOrganization.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Setter
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "armies")
 public class Armies {
         @Id
@@ -19,32 +24,10 @@ public class Armies {
         @Column(name = "name_army", nullable = false)
         private String name_army;
 
-        @OneToMany
-        private List<Employees> employees;
+        @OneToMany(fetch = FetchType.EAGER, mappedBy = "id_employee")
+        private List<Employees> employees = new ArrayList<>();
 
-        @OneToMany
-        private List<Associations> associations;
+        @OneToMany(fetch = FetchType.EAGER, mappedBy = "id_association")
+        private List<Associations> associations = new ArrayList<>();
 
-    public Armies(Integer id_army, String name_army) {
-        this.id_army = id_army;
-        this.name_army = name_army;
-    }
-
-    public Armies() { }
-
-    public Integer getId_army() {
-        return id_army;
-    }
-
-    public void setId_army(Integer id_army) {
-        this.id_army = id_army;
-    }
-
-    public String getName_army() {
-        return name_army;
-    }
-
-    public void setName_army(String name_army) {
-        this.name_army = name_army;
-    }
 }

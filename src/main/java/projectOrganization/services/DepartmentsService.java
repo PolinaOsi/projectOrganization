@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import projectOrganization.dto.DepartmentsDTO;
 import projectOrganization.entity.Departments;
+import projectOrganization.entity.Platoons;
 import projectOrganization.repository.DepartmentsRepository;
+import projectOrganization.repository.PlatoonsRepository;
 
 import java.util.List;
 
@@ -13,6 +15,8 @@ import java.util.List;
 public class DepartmentsService {
     @Autowired
     DepartmentsRepository departmentsRepository;
+    @Autowired
+    PlatoonsRepository platoonsRepository;
 
     public List<Departments> getAllDepartments() throws Exception {
         return (List<Departments>) departmentsRepository.findAll();
@@ -26,7 +30,8 @@ public class DepartmentsService {
         Departments department = new Departments();
 
         department.setId_department(request.getId_department());
-        department.setId_platoon(request.getId_platoon());
+        Platoons platoons = platoonsRepository.findById(request.getId_platoon()).get();
+        department.setPlatoons(platoons);
         departmentsRepository.save(department);
     }
 
@@ -41,7 +46,11 @@ public class DepartmentsService {
                 return ResponseEntity.badRequest().body("Отдела не существует");
             }
 
-            Departments department = new Departments(departmentsDTO.getId_department(), departmentsDTO.getId_platoon());
+            Departments department = departmentsRepository.findById(departmentsDTO.getId_department()).get();
+
+            department.setId_department(departmentsDTO.getId_department());
+            Platoons platoons = platoonsRepository.findById(departmentsDTO.getId_platoon()).get();
+            department.setPlatoons(platoons);
             departmentsRepository.save(department);
 
             return ResponseEntity.ok("Успех");

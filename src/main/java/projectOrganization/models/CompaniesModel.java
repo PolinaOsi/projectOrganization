@@ -13,7 +13,7 @@ public class CompaniesModel {
     public static CompaniesModel toModel(Companies company) {
         CompaniesModel model = new CompaniesModel();
         model.setId_company(company.getId_company());
-        model.setId_unit(company.getId_unit());
+        model.setId_unit(company.getMilitary_units().getId_unit());
 
         return model;
     }

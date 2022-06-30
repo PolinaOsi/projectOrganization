@@ -16,7 +16,7 @@ public class ConstructionsModel {
 
         model.setId_construction(construction.getId_construction());
         model.setName_construction(construction.getName_construction());
-        model.setId_unit(construction.getId_unit());
+        model.setId_unit(construction.getMilitary_units().getId_unit());
         return model;
     }
 }

@@ -42,7 +42,11 @@ public class RanksService {
                 return ResponseEntity.badRequest().body("Звания не существует");
             }
 
-            Ranks rank = new Ranks(ranksDTO.getId_rank(), ranksDTO.getName_rank(), ranksDTO.getCategory());
+            Ranks rank = ranksRepository.findById(ranksDTO.getId_rank()).get();
+
+            rank.setId_rank(ranksDTO.getId_rank());
+            rank.setName_rank(ranksDTO.getName_rank());
+            rank.setCategory(ranksDTO.getCategory());
             ranksRepository.save(rank);
 
             return ResponseEntity.ok("Успех");

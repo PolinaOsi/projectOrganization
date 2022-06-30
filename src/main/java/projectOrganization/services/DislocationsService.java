@@ -41,7 +41,10 @@ public class DislocationsService {
                 return ResponseEntity.badRequest().body("Дислокации не существует");
             }
 
-            Dislocations dislocation = new Dislocations(dislocationsDTO.getId_dislocation(), dislocationsDTO.getCity());
+            Dislocations dislocation = dislocationsRepository.findById(dislocationsDTO.getId_dislocation()).get();
+
+            dislocation.setId_dislocation(dislocationsDTO.getId_dislocation());
+            dislocation.setCity(dislocationsDTO.getCity());
             dislocationsRepository.save(dislocation);
 
             return ResponseEntity.ok("Успех");

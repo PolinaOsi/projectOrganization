@@ -1,14 +1,19 @@
 package projectOrganization.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Setter
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "platoons")
 public class Platoons {
         @Id
@@ -16,28 +21,11 @@ public class Platoons {
         @Column(name = "id_platoon")
         private Integer id_platoon;
 
-        @Column(name = "id_company")
-        private Integer id_company;
-
         @ManyToOne
+        @JoinColumn(name = "id_company")
         private Companies companies;
 
-        @OneToMany
-        private List<Departments> departments;
+        @OneToMany(fetch = FetchType.EAGER, mappedBy = "id_department")
+        private List<Departments> departments = new ArrayList<>();
 
-
-    public Platoons(Integer id_platoon, Integer id_company) {
-        this.id_platoon = id_platoon;
-        this.id_company = id_company;
-    }
-
-    public Platoons() { }
-
-    public Integer getId_platoon() { return id_platoon; }
-
-    public void setId_platoon(Integer id_platoon) { this.id_platoon = id_platoon; }
-
-    public Integer getId_company() { return id_company; }
-
-    public void setId_company(Integer id_company) { this.id_company = id_company; }
 }

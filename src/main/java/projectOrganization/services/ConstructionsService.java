@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import projectOrganization.dto.ConstructionsDTO;
 import projectOrganization.entity.Constructions;
+import projectOrganization.entity.Military_units;
 import projectOrganization.repository.ConstructionsRepository;
+import projectOrganization.repository.Military_unitsRepository;
 
 import java.util.List;
 
@@ -13,6 +15,8 @@ import java.util.List;
 public class ConstructionsService {
         @Autowired
         ConstructionsRepository constructionsRepository;
+        @Autowired
+        Military_unitsRepository military_unitsRepository;
 
         public List<Constructions> getAllConstructions() throws Exception {
             return (List<Constructions>) constructionsRepository.findAll();
@@ -26,7 +30,8 @@ public class ConstructionsService {
             Constructions construction = new Constructions();
             construction.setId_construction(request.getId_construction());
             construction.setName_construction(request.getName_construction());
-            construction.setId_unit(request.getId_unit());
+            Military_units military_units = military_unitsRepository.findById(request.getId_construction()).get();
+            construction.setMilitary_units(military_units);
 
             constructionsRepository.save(construction);
         }
@@ -42,7 +47,12 @@ public class ConstructionsService {
                     return ResponseEntity.badRequest().body("Сооружения не существует");
                 }
 
-                Constructions construction = new Constructions(constructionsDTO.getId_construction(), constructionsDTO.getName_construction(), constructionsDTO.getId_unit());
+                Constructions construction = constructionsRepository.findById(constructionsDTO.getId_construction()).get();
+
+                construction.setId_construction(constructionsDTO.getId_construction());
+                construction.setName_construction(constructionsDTO.getName_construction());
+                Military_units military_units = military_unitsRepository.findById(constructionsDTO.getId_construction()).get();
+                construction.setMilitary_units(military_units);
                 constructionsRepository.save(construction);
 
                 return ResponseEntity.ok("Успех");

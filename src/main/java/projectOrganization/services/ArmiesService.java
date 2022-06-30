@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 import projectOrganization.dto.ArmiesDTO;
+import projectOrganization.entity.Armaments;
 import projectOrganization.entity.Armies;
 import projectOrganization.repository.ArmiesRepository;
 
@@ -41,7 +42,9 @@ public class ArmiesService {
                 return ResponseEntity.badRequest().body("Армии не существует");
             }
 
-            Armies army = new Armies(armiesDTO.getId_army(), armiesDTO.getName_army());
+            Armies army = armiesRepository.findById(armiesDTO.getId_army()).get();
+            army.setId_army(armiesDTO.getId_army());
+            army.setName_army(armiesDTO.getName_army());
             armiesRepository.save(army);
 
             return ResponseEntity.ok("Успех");
